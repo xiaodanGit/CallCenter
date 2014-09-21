@@ -14,5 +14,25 @@ public enum Rank
 	{
 		return value;
 	}
+	
+	public static Rank getRankFromNumber(int num)
+	{
+		if(num == -1)
+		{
+			return Rank.handler;
+		}
+		else if(num == 0)
+		{
+			return Rank.respondent;
+		}
+		else if(num == 1)
+		{
+			return Rank.manager;
+		}
+		else
+		{
+			return Rank.director;
+		}
+	}
 
 }

@@ -1,19 +1,13 @@
 package basic;
 
 
-public class Manager extends Employee 
+public class Manager extends CallHandler 
 {
 
 	public Manager() 
 	{
-	
+		super();
 		this.rank = Rank.manager;
-	}
-
-	@Override
-	public void escalateCall() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

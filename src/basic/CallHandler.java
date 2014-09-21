@@ -20,21 +20,60 @@ public class CallHandler
 		callQueue = new LinkedList<Call>();
 	}
 	
-	public void handle(Call call) throws NoHandlerAvailableException
+	public void handleCall(Call call)
 	{
 		this.isAvailable = false;
+		callQueue.offer(call);
+		work();	
+	}
+	
+	public void setNextLevelHandlers(List<CallHandler> nextLevelHandlers)
+	{
+		this.nextLevelHandlers = nextLevelHandlers;
+	}
+	
+	private void handle(Call call) 
+	{
 		if(canHandle(call))
 		{
-			System.out.println("handle call " + call.toString());
+			boolean done = false;
+			if(done)
+			{
+				System.out.println("handle call " + call.toString());
+			}
+			else
+			{
+				call.setRank(Rank.getRankFromNumber(rank.getValue() + 1));
+			}
 		}
 		else
 		{
-			getAvailableNextLevelHandler().handle(call);
+			CallHandler next = getAvailableNextLevelHandler();
+			if(next == null)
+			{
+				callQueue.add(call);
+			}
+			else
+			{
+				next.handleCall(call);
+			}
 		}
 		this.isAvailable = true;
+		
 	}
 	
-	public boolean canHandle(Call call)
+	private void work()
+	{
+		
+		while(!callQueue.isEmpty())
+		{
+			Call cur = callQueue.poll();
+			handle(cur);
+		}
+		
+	}
+	
+	private boolean canHandle(Call call)
 	{
 		if(rank.getValue() < call.getRank().getValue())
 		{
@@ -46,7 +85,7 @@ public class CallHandler
 		}
 	}
 	
-	private CallHandler getAvailableNextLevelHandler() throws NoHandlerAvailableException
+	private CallHandler getAvailableNextLevelHandler()
 	{
 		for(CallHandler handler:  nextLevelHandlers)
 		{
@@ -56,7 +95,7 @@ public class CallHandler
 				return handler;
 			}
 		}
-		throw new NoHandlerAvailableException();
+		return null;
 	}
 	
 	public void setAvailable(boolean available)
