@@ -1,59 +1,73 @@
 package basic;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 
 public class CallHandler 
 {
+	List<CallHandler> nextLevelHandlers;
+	Rank rank;
+	boolean isAvailable;
+	Queue<Call> callQueue;
 	
-	private List<ArrayList<Employee>> employeeList;
-	private static CallHandler handler;
-	
-	private static final int NUM_OF_DIRECTOR = 2;
-	private static final int NUM_OF_MANAGER = 4;
-	private static final int NUM_OF_RESPONDENT = 10;
-	
-	private CallHandler()
+	CallHandler()
 	{
-		this(NUM_OF_DIRECTOR, NUM_OF_MANAGER, NUM_OF_RESPONDENT);
+		rank = Rank.handler;
+		isAvailable = true;
+		callQueue = new LinkedList<Call>();
 	}
 	
-	private CallHandler(int numberOfDirector, int numberOfManager, int numberOfRespondent)
+	public void handle(Call call) throws NoHandlerAvailableException
 	{
-		employeeList = new ArrayList<ArrayList<Employee>>();
-		for(int i = 0; i < numberOfDirector; i ++)
+		this.isAvailable = false;
+		if(canHandle(call))
 		{
-			employeeList.get(Rank.director.value).add(new Director());
+			System.out.println("handle call " + call.toString());
 		}
-		for(int i = 0; i < numberOfManager; i ++)
+		else
 		{
-			employeeList.get(Rank.manager.value).add(new Manager());
+			getAvailableNextLevelHandler().handle(call);
 		}
-		for(int i = 0; i < numberOfRespondent; i ++)
+		this.isAvailable = true;
+	}
+	
+	public boolean canHandle(Call call)
+	{
+		if(rank.getValue() < call.getRank().getValue())
 		{
-			employeeList.get(Rank.respondent.value).add(new Respondent());
+			return false;
+		}
+		else
+		{
+			return true;
 		}
 	}
 	
-	public static CallHandler getInstance()
+	private CallHandler getAvailableNextLevelHandler() throws NoHandlerAvailableException
 	{
-		if(handler == null)
+		for(CallHandler handler:  nextLevelHandlers)
 		{
-			handler = new CallHandler();
+			if(handler.isAvailable)
+			{
+				handler.setAvailable(false);
+				return handler;
+			}
 		}
-		return handler;
+		throw new NoHandlerAvailableException();
 	}
 	
-	public void handle(String caller)
+	public void setAvailable(boolean available)
 	{
-		Call call = new Call(caller);
+		this.isAvailable = available;
 	}
 	
-	public Employee getAvailableEmployee(Call call)
+	public boolean isAvailable()
 	{
-		int rank = call.getRank().getValue();
-		ArrayList<Employee> 
+		return this.isAvailable;
 	}
+	
 	
 }
